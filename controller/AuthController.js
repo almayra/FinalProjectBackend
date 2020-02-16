@@ -2,6 +2,7 @@ const {mysql}=require('./../connection')
 const fs=require('fs') //file system
 const cryptogenerate=require('./../helper/encrypt')
 const transporter=require('./../helper/mailer')
+const {createJWTToken}=require('./../helper/jwt')
 
 module.exports={
     crypto: (req,res)=>{
@@ -62,5 +63,40 @@ module.exports={
                 }
             })
         })
+    },
+    login: (req, res)=>{
+        const {username, password}=req.query //kl get query kl post body
+        // const {id}=req.params
+
+        var hashpassword=cryptogenerate(password)
+        var sql= `SELECT * FROM users WHERE id='${id}'`
+        mysql.query(sql, (err, result3)=>{
+            if(err) res.status(500).send({status: 'error', err})
+            if(result3.length===0){
+                return res.status(200).send({status:'notmatch', error:'Nama user/Password Tidak Cocok'})
+            }
+            const token=createJWTToken({userid:result3[0].id, username:result3[0].username})
+            console.log(token)
+            return res.send({username: result3[0].username, id:result3[0].id, status:'Berhasil Login', token})
+        })
+
+
+        // var hashpassword= cryptogenerate(password)
+        // var sql=`SELECT * FROM users WHERE username='${username} and password='${hashpassword}'`
+
+        // mysql.query(sql, (err, results3)=>{
+        //     if(err){
+        //         return res.status(500).send({status:'error', err})
+        //     }
+            
+        //     if(results3.length>0){
+        //         return res.status(200).send({results3, status:'Login Berhasil'})
+        //     }else{
+        //         return res.status(200).send({
+        //             status:'error',
+        //             message:''
+        //         })
+        //     }
+        // })
     }
 }
