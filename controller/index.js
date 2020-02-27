@@ -1,5 +1,7 @@
 const authController=require('./AuthController')
+const productController=require('./productController')
 
 module.exports={
-    authController
+    authController,
+    productController
 }

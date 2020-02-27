@@ -11,9 +11,11 @@ app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.json())
 app.use(express.static('public'))
 
-const {authRouter}=require('./router')
+const {authRouter, kelasRouter}=require('./router')
 
 app.use('/auth', authRouter)
+app.use('/kelas', kelasRouter)
+
 
 app.get('/', (req, res) => {
     return res.status(200).send('<h1>API PKC</h1>')
