@@ -174,7 +174,7 @@ module.exports={
                 console.log(req.files)
                 const {image}=req.files
                 const imagePath=image ? path + '/' + image[0].filename : null
-                const data = JSON.parse(req.bodt.data)
+                const data = JSON.parse(req.body.data)
                 data.foto=imagePath
                 console.log(data)
 

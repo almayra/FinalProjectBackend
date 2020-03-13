@@ -7,6 +7,7 @@ router.post('/register', authController.register)
 router.put('/verifikasiemail', authController.emailverifikasi)
 router.get('/login', authController.login)
 router.get('/login/:id', authController.login)
+router.get('/datauser', authController.getUser)
 
 module.exports=router
 

@@ -81,10 +81,7 @@ module.exports={
                 return res.send({username: result3[0].username, id:result3[0].id, status:'Berhasil Login', token})
             })
         }
-        
-
-        // console.log("masuk");
-        
+                
         var hashpassword= cryptogenerate(password)
         console.log(username, hashpassword);
         var sql=`SELECT * FROM users WHERE username='${username}' and password='${hashpassword}'`
@@ -103,6 +100,14 @@ module.exports={
                     message:'Username/Password tidak cocok'
                 })
             }
+        })
+    }, getUser:(req, res)=>{
+        var sql='SELECT  username, email, status from users'
+        mysql.query(sql, (err, res1)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            return res.status(200).send(res1)
         })
     }
 }
