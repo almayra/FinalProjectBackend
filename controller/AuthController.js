@@ -25,7 +25,7 @@ module.exports={
                     email,
                     password:hashpassword,
                     status:'unverified',
-                    roleid:'2'
+                    roleid:'2',
                 }
                 sql=`INSERT INTO users SET ?`
                 mysql.query(sql, datauser, (err1, res1)=>{
@@ -76,16 +76,15 @@ module.exports={
                 if(result3.length===0){
                     return res.status(200).send({status:'notmatch', error:'User tidak ada'})
                 }
-                const token=createJWTToken({userid:result3[0].id, username:result3[0].username})
+                const token=createJWTToken({userid:result3[0].id, username:result3[0].username, password:result3[0].password, role:result3[0].role})
                 console.log(token)
-                return res.send({username: result3[0].username, id:result3[0].id, status:'Berhasil Login', token})
+                return res.send({username: result3[0].username, id:result3[0].id, password:result3[0].password, role:result3[0].role, status:'Berhasil Login', token})
             })
         }
                 
         var hashpassword= cryptogenerate(password)
         console.log(username, hashpassword);
-        var sql=`SELECT * FROM users WHERE username='${username}' and password='${hashpassword}'`
-
+        var sql=`SELECT u.*, r.* FROM users u JOIN roles r on u.roleid=r.id WHERE username='${username}' AND password='${hashpassword}'`
         mysql.query(sql, (err, results3)=>{
             if(err){
                 return res.status(500).send({status:'error', err})
@@ -97,12 +96,12 @@ module.exports={
             }else{
                 return res.status(200).send({
                     status:'error',
-                    message:'Username/Password tidak cocok'
+                    message:'Username/Pass salah'
                 })
             }
         })
     }, getUser:(req, res)=>{
-        var sql='SELECT  username, email, status from users'
+        var sql='SELECT  username, email, status from users u where u.roleid=2'
         mysql.query(sql, (err, res1)=>{
             if(err){
                 return res.status(500).send(err)

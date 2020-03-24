@@ -56,10 +56,10 @@ module.exports={
                console.log('problem',err)
                return res.status(500).send(err)
            }
-           console.log(result1)
+           console.log(result1[0])
            console.log('alamat', result1[0].foto)
            var imagePath=result1[0].foto
-           sql=`SELECT * FROM galeri WHERE ID=${selectedId}`
+           sql=`DELETE FROM galeri WHERE ID=${selectedId}`
            mysql.query(sql, (err, results)=>{
                if(err){
                    console.log(err.message)

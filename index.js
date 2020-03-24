@@ -11,11 +11,12 @@ app.use(BodyParser.urlencoded({extended:false}))
 app.use(BodyParser.json())
 app.use(express.static('public'))
 
-const {authRouter, kelasRouter, galeriRouter}=require('./router')
+const {authRouter, kelasRouter, galeriRouter, transaksiRouter}=require('./router')
 
 app.use('/auth', authRouter)
 app.use('/kelas', kelasRouter)
 app.use('/galeri', galeriRouter)
+app.use('/transaksi', transaksiRouter)
 
 
 app.get('/', (req, res) => {
