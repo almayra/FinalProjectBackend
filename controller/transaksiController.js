@@ -27,7 +27,7 @@ module.exports={
                             error:err.message
                         })
                     }
-                    sql=`select t.*, pb.namapaket from transaksi t join paketbelajar pb on t.idpaket=pb.namapaket;`
+                    sql=`select t.*, u.id, u.username,pb.namapaket from users u join transaksi t on t.iduser=u.id join paketbelajar pb on t.idpaket=pb.idpak`
                     mysql.query(sql, (err1, results1)=>{
                         if(err1) res.status(500).send(err1)
                         return res.status(200).send(results1)
@@ -39,7 +39,7 @@ module.exports={
         }
     },
     getTransaksi:(req, res)=>{
-        var sql=`select t.*, pb.namapaket from transaksi t join paketbelajar pb on t.idpaket=pb.namapaket;`
+        var sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak ;`
         mysql.query(sql, (err, res1)=>{
             if(err){
                 return res.status(500).send(err)
@@ -55,5 +55,39 @@ module.exports={
             }
             return res.status(200).send(res1)
         })
+    },
+    approveTransaksi:(req, res)=>{
+        var {id}=req.params
+        var {iduser, status}= req.body
+
+        if(status){
+            console.log(status, id)
+
+            var data2={
+                status:'approved'
+            }
+
+            var sql=`update transaksi set ? where id=${id} and status='waiting confirmation'`
+            mysql.query(sql, data2, (err2, results2)=>{
+                if(err2) res.status(500).send(err2)
+            })
+        }else{
+            console.log(status)
+            var data2={
+                status:'declined'
+            }
+            var sql = `update transaksi set ? where id=${id} and status='waiting confirmation'`
+            mysql.query(sql, data2, (err2, results2)=>{
+                if(err) res.status(500).send(err2)
+            })
+
+            var data={
+                status:'subscribe'
+            }
+            sql=`update transaksi set ? where idtransaksi=${id} and status='waiting confirmation'`
+            mysql.query(sql, data, (err1, results1)=>{
+                if(err1) res.status(500).send(err1)
+            })
+        }
     }
 }

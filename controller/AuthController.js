@@ -84,7 +84,7 @@ module.exports={
                 
         var hashpassword= cryptogenerate(password)
         console.log(username, hashpassword);
-        var sql=`SELECT u.*, r.* FROM users u JOIN roles r on u.roleid=r.id WHERE username='${username}' AND password='${hashpassword}'`
+        var sql=`SELECT u.*, r.rolename FROM users u JOIN roles r on u.roleid=r.id WHERE username='${username}' AND password='${hashpassword}'`
         mysql.query(sql, (err, results3)=>{
             if(err){
                 return res.status(500).send({status:'error', err})

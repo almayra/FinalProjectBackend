@@ -8,5 +8,6 @@ router.get('/getkategori', productController.getKategori)
 router.delete('/deletekelas/:selectedId', productController.deleteKelas)
 router.put('/editkelas/:selectedIdEdit', productController.editKelas)
 router.get('/getdetailkelas/:selectedId', productController.getDetailKelas)
+router.get('/getkelaspage/:page', productController.getPageKelas)
 
 module.exports=router
