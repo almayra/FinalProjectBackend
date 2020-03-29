@@ -123,5 +123,31 @@ module.exports={
                 return res.status(200).send({pageOfData, pager})
             })
         })
+    }, getUserSubscribe:(req, res)=>{
+        const sqlCount=`SELECT COUNT(*) AS count FROM users`
+        
+        let dataCount
+        mysql.query(sqlCount, (err, result)=>{
+            if(err) res.status(500).send(err)
+            dataCount=result[0].count 
+
+            const page=parseInt(req.params.page)||1 //mindah2
+            const pageSize=5
+            const pager=paginate(dataCount, page, pageSize)
+
+            let offset //limit in product
+            if(page === 1){
+                offset=0
+            }else{
+                offset=pageSize * (page - 1)
+            }
+            
+            sql='select u.username, u.id as iduser , u.status, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak LIMIT ? OFFSET ?'
+            mysql.query(sql,[pageSize, offset], (err, result)=>{
+                if(err) res.status(500).send(err1)
+                const pageOfData=result
+                return res.status(200).send({pageOfData, pager})
+            })
+        })
     }
 }
