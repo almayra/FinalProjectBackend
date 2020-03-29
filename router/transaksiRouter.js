@@ -3,8 +3,8 @@ const {transaksiController}=require('../controller')
 const router=express.Router()
 
 router.post('/postbukti', transaksiController.postTransaksi),
-router.get('/gettransaksi', transaksiController.getTransaksi)
+router.get('/gettransaksi/:page', transaksiController.getTransaksi)
 router.get('/paket', transaksiController.getPaket)
-router.put('/approvepay/:id', transaksiController.approveTransaksi)
+router.put('/approvepay/:idtransaksi', transaksiController.approveTransaksi)
 
 module.exports=router

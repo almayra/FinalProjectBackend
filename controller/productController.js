@@ -168,7 +168,7 @@ module.exports={
             if(err) res.status(500).send(err)
             dataCount=result[0].count 
 
-            const page=parseInt(req.params.id)||1 //mindah2
+            const page=parseInt(req.params.page)||1 //mindah2
             const pageSize=9
             const pager=paginate(dataCount, page, pageSize)
 
@@ -179,12 +179,30 @@ module.exports={
                 offset=pageSize * (page - 1)
             }
 
-            sql=`'SELECT * FROM product p join category c on p.idkategori=c.idkat LIMIT ? OFFSET ?`
+            sql=`SELECT * FROM product p join category c on p.idkategori=c.idkat LIMIT ? OFFSET ?`
             mysql.query(sql, [pageSize, offset], (err1, result2)=>{
                 if(err) res.status(500).send(err1)
                 const pageOfData=result2
                 return res.status(200).send({pageOfData, pager})
             })
+        })
+    },
+    getBranding:(req, res)=>{
+        var sql='SELECT * FROM product p join category c on p.idkategori=c.idkat where p.idkategori=1'
+        mysql.query(sql, (err, res1)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            return res.status(200).send(res1)
+        })
+    },
+    getMarketing:(req, res)=>{
+        var sql='SELECT * FROM product p join category c on p.idkategori=c.idkat where p.idkategori=2'
+        mysql.query(sql, (err, res1)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            return res.status(200).send(res1)
         })
     }
 }

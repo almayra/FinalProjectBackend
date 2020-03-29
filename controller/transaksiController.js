@@ -1,6 +1,8 @@
 const {mysql}=require('../connection')
 const fs=require('fs')
 const {uploader}=require('../helper/uploader')
+const paginate = require('jw-paginate')
+const moment=require('moment')
 
 module.exports={
     postTransaksi:(req, res)=>{
@@ -39,13 +41,31 @@ module.exports={
         }
     },
     getTransaksi:(req, res)=>{
-        var sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak ;`
-        mysql.query(sql, (err, res1)=>{
-            if(err){
-                return res.status(500).send(err)
+        const sqlCount=`SELECT COUNT(*) AS count FROM transaksi`
+        let dataCount
+
+        mysql.query(sqlCount, (err,results)=>{
+            if(err) res.status(500).send(err)
+            dataCount=results[0].count 
+
+            const page= parseInt(req.params.page)|| 1
+            const pageSize=3
+            const pager=paginate(dataCount, page, pageSize)
+
+            let offset;
+            if (page === 1) {
+                offset = 0
+            } else {
+                offset = pageSize * (page - 1)
             }
-            return res.status(200).send(res1)
+            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak LIMIT ? OFFSET ?`
+            mysql.query(sql, [pageSize, offset], (err, results2)=>{
+                if(err) res.status(500).send(err)
+                const pageOfData=results2
+                return res.status(200).send({pageOfData, pager})
+            })
         })
+
     },
     getPaket:(req, res)=>{
         var sql='SELECT * FROM paketbelajar'
@@ -57,37 +77,58 @@ module.exports={
         })
     },
     approveTransaksi:(req, res)=>{
-        var {id}=req.params
-        var {iduser, status}= req.body
+        var {idtransaksi}=req.params
+        var {status}= req.body
+        console.log('line 82', idtransaksi, status)
 
         if(status){
-            console.log(status, id)
-
+            console.log(status, idtransaksi, 'line 85')
             var data2={
-                status:'approved'
+                status:'approved',
+                tglmulai: moment().format('LL'),
+                tglberakhir: moment().add('1', 'M').format('LL')
             }
+            console.log('line 91', idtransaksi, status)
 
-            var sql=`update transaksi set ? where id=${id} and status='waiting confirmation'`
+            var sql=`update transaksi set ? where idtransaksi=${idtransaksi} and status='waiting confirmation'`
             mysql.query(sql, data2, (err2, results2)=>{
                 if(err2) res.status(500).send(err2)
             })
+            
         }else{
-            console.log(status)
+            console.log(status, 'line 109')
             var data2={
                 status:'declined'
             }
-            var sql = `update transaksi set ? where id=${id} and status='waiting confirmation'`
+            var sql = `update transaksi set ? where idtransaksi=${idtransaksi} and status='waiting confirmation'`
             mysql.query(sql, data2, (err2, results2)=>{
-                if(err) res.status(500).send(err2)
-            })
-
-            var data={
-                status:'subscribe'
-            }
-            sql=`update transaksi set ? where idtransaksi=${id} and status='waiting confirmation'`
-            mysql.query(sql, data, (err1, results1)=>{
-                if(err1) res.status(500).send(err1)
+                if(err2) res.status(500).send(err2)
             })
         }
+
+        const sqlCount=`SELECT COUNT(*) AS count FROM transaksi`
+        let dataCount
+
+        mysql.query(sqlCount, (err,results)=>{
+            if(err) res.status(500).send(err)
+            dataCount=results[0].count 
+
+            const page= parseInt(req.params.page)|| 1
+            const pageSize=3
+            const pager=paginate(dataCount, page, pageSize)
+
+            let offset;
+            if (page === 1) {
+                offset = 0
+            } else {
+                offset = pageSize * (page - 1)
+            }
+            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where status='waiting confirmation' LIMIT ? OFFSET ?`
+            mysql.query(sql, [pageSize, offset], (err, results2)=>{
+                if(err) res.status(500).send(err)
+                const pageOfData=results2
+                return res.status(200).send({pageOfData, pager})
+            })
+        })
     }
 }

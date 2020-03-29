@@ -3,6 +3,8 @@ const fs=require('fs') //file system
 const cryptogenerate=require('./../helper/encrypt')
 const transporter=require('./../helper/mailer')
 const {createJWTToken}=require('./../helper/jwt')
+const paginate = require('jw-paginate')
+
 
 module.exports={
     crypto: (req,res)=>{
@@ -101,12 +103,30 @@ module.exports={
             }
         })
     }, getUser:(req, res)=>{
-        var sql='SELECT  username, email, status from users u where u.roleid=2'
-        mysql.query(sql, (err, res1)=>{
-            if(err){
-                return res.status(500).send(err)
+        const sqlCount=`SELECT COUNT(*) AS count FROM users`
+        
+        let dataCount
+        mysql.query(sqlCount, (err, result)=>{
+            if(err) res.status(500).send(err)
+            dataCount=result[0].count 
+
+            const page=parseInt(req.params.page)||1 //mindah2
+            const pageSize=10
+            const pager=paginate(dataCount, page, pageSize)
+
+            let offset //limit in product
+            if(page === 1){
+                offset=0
+            }else{
+                offset=pageSize * (page - 1)
             }
-            return res.status(200).send(res1)
+            
+            sql='SELECT  username, email, status from users u where u.roleid=2 LIMIT ? OFFSET ?'
+            mysql.query(sql,[pageSize, offset], (err, result2)=>{
+                if(err) res.status(500).send(err1)
+                const pageOfData=result2
+                return res.status(200).send({pageOfData, pager})
+            })
         })
     }
 }
