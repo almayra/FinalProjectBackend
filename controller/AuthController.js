@@ -8,7 +8,6 @@ const paginate = require('jw-paginate')
 
 module.exports={
     crypto: (req,res)=>{
-        console.log(req.query)
         const hashpassword = cryptogenerate(req.query.password)
         res.send({encryptan: hashpassword, panjangencypt: hashpassword.length})
     },
@@ -17,7 +16,6 @@ module.exports={
 
         var sql=`SELECT * FROM users WHERE username='${username}'`
         mysql.query(sql, (err, result)=>{
-            console.log('ini')
             if(err) return res.status(500).send({err})
             if(result.length>0) return res.status(200).send({status:'error', message: 'Akun sudah terdaftar'})
             else{
@@ -28,6 +26,7 @@ module.exports={
                     password:hashpassword,
                     status:'unverified',
                     roleid:'2',
+                    idpaketbljr:'1'
                 }
                 sql=`INSERT INTO users SET ?`
                 mysql.query(sql, datauser, (err1, res1)=>{
@@ -71,7 +70,6 @@ module.exports={
         const {id}=req.params
 
         if (id) {
-            console.log('masuk relogin')
             var sql= `SELECT * FROM users WHERE id='${id}'`
             mysql.query(sql, (err, result3)=>{
                 if(err) res.status(500).send({status: 'error', err})
@@ -79,20 +77,17 @@ module.exports={
                     return res.status(200).send({status:'notmatch', error:'User tidak ada'})
                 }
                 const token=createJWTToken({userid:result3[0].id, username:result3[0].username, password:result3[0].password, role:result3[0].role})
-                console.log(token)
                 return res.send({username: result3[0].username, id:result3[0].id, password:result3[0].password, role:result3[0].role, status:'Berhasil Login', token})
             })
         }
                 
         var hashpassword= cryptogenerate(password)
-        console.log(username, hashpassword);
         var sql=`SELECT u.*, r.rolename FROM users u JOIN roles r on u.roleid=r.id WHERE username='${username}' AND password='${hashpassword}'`
         mysql.query(sql, (err, results3)=>{
             if(err){
                 return res.status(500).send({status:'error', err})
             }
             
-        console.log("res",results3);
         if(results3.length>0){
                 return res.status(200).send({result: results3[0], status:'Login Berhasil'})
             }else{
@@ -121,7 +116,7 @@ module.exports={
                 offset=pageSize * (page - 1)
             }
             
-            sql='SELECT  username, email, status from users u where u.roleid=2 LIMIT ? OFFSET ?'
+            sql='SELECT  u.username, u.email, u.status, pb.* from users u join paketbelajar pb on u.idpaketbljr=pb.idpak where u.roleid=2 LIMIT ? OFFSET ?'
             mysql.query(sql,[pageSize, offset], (err, result2)=>{
                 if(err) res.status(500).send(err1)
                 const pageOfData=result2

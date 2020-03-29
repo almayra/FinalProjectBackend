@@ -14,12 +14,10 @@ module.exports={
                 if(err){
                     return res.status(500).json({message:'Upload Galeri Gagal', error: err.message})
                 }
-                console.log(req.files)
                 const {image}=req.files
                 const imagePath=image ? path + '/' + image[0].filename:null
                 const data = JSON.parse(req.body.data)
                 data.foto=imagePath
-                console.log(data)
 
                 var sql=`INSERT INTO galeri SET ?`
                 mysql.query(sql, data, (err, result)=>{

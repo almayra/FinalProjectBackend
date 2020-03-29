@@ -41,7 +41,7 @@ module.exports={
         }
     },
     getTransaksi:(req, res)=>{
-        const sqlCount=`SELECT COUNT(*) AS count FROM transaksi`
+        const sqlCount=`SELECT COUNT(*) AS count FROM users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status='waiting confirmation'`
         let dataCount
 
         mysql.query(sqlCount, (err,results)=>{
@@ -58,7 +58,7 @@ module.exports={
             } else {
                 offset = pageSize * (page - 1)
             }
-            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak LIMIT ? OFFSET ?`
+            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status='waiting confirmation' LIMIT ? OFFSET ?`
             mysql.query(sql, [pageSize, offset], (err, results2)=>{
                 if(err) res.status(500).send(err)
                 const pageOfData=results2
@@ -79,10 +79,12 @@ module.exports={
     approveTransaksi:(req, res)=>{
         var {idtransaksi}=req.params
         var {status}= req.body
-        console.log('line 82', idtransaksi, status)
+        // console.log('line 82', idtransaksi)
+        idtransaksi=parseInt(idtransaksi)
+        console.log(idtransaksi, 'line84')
 
         if(status){
-            console.log(status, idtransaksi, 'line 85')
+            // console.log(status, parseInt( idtransaksi), 'line 85')
             var data2={
                 status:'approved',
                 tglmulai: moment().format('LL'),
@@ -90,9 +92,10 @@ module.exports={
             }
             console.log('line 91', idtransaksi, status)
 
-            var sql=`update transaksi set ? where idtransaksi=${idtransaksi} and status='waiting confirmation'`
-            mysql.query(sql, data2, (err2, results2)=>{
-                if(err2) res.status(500).send(err2)
+            var sql=`UPDATE transaksi SET ? WHERE idtransaksi = ${idtransaksi}`
+            mysql.query(sql, data2, (err, results2)=>{
+                if(err) res.status(500).send(err)
+                console.log(results2)
             })
             
         }else{
@@ -100,13 +103,13 @@ module.exports={
             var data2={
                 status:'declined'
             }
-            var sql = `update transaksi set ? where idtransaksi=${idtransaksi} and status='waiting confirmation'`
+            var sql = `UPDATE transaksi SET ? WHERE idtransaksi = ${idtransaksi}`
             mysql.query(sql, data2, (err2, results2)=>{
                 if(err2) res.status(500).send(err2)
             })
         }
 
-        const sqlCount=`SELECT COUNT(*) AS count FROM transaksi`
+        const sqlCount=`SELECT COUNT(*) AS count FROM users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status='waiting confirmation'`
         let dataCount
 
         mysql.query(sqlCount, (err,results)=>{
@@ -123,10 +126,10 @@ module.exports={
             } else {
                 offset = pageSize * (page - 1)
             }
-            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where status='waiting confirmation' LIMIT ? OFFSET ?`
-            mysql.query(sql, [pageSize, offset], (err, results2)=>{
+            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status='waiting confirmation' LIMIT ? OFFSET ?`
+            mysql.query(sql, [pageSize, offset], (err, results)=>{
                 if(err) res.status(500).send(err)
-                const pageOfData=results2
+                const pageOfData=results
                 return res.status(200).send({pageOfData, pager})
             })
         })
