@@ -142,7 +142,7 @@ module.exports={
                 offset=pageSize * (page - 1)
             }
             
-            sql='select u.username, u.id as iduser , u.status, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak LIMIT ? OFFSET ?'
+            sql='select u.username, u.id as iduser , t.tglmulai, t.tglberakhir,u.status, pb.namapaket, u.status from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status="approved" LIMIT ? OFFSET ?'
             mysql.query(sql,[pageSize, offset], (err, result)=>{
                 if(err) res.status(500).send(err1)
                 const pageOfData=result

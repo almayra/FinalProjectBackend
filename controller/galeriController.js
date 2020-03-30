@@ -29,9 +29,9 @@ module.exports={
                     }
 
                     sql=`SELECT * FROM galeri`
-                    mysql.query(sql, (err1, result1)=>{
+                    mysql.query(sql, (err1, result2)=>{
                         if(err1) res.status(500).send(err1)
-                        return res.status(200).send(result1)
+                        return res.status(200).send(result2)
                     })
                 })
             })
@@ -58,7 +58,7 @@ module.exports={
            console.log('alamat', result1[0].foto)
            var imagePath=result1[0].foto
            sql=`DELETE FROM galeri WHERE ID=${selectedId}`
-           mysql.query(sql, (err, results)=>{
+           mysql.query(sql, (err, result)=>{
                if(err){
                    console.log(err.message)
                    return res.status.json({message:`there's an error on the server`, err:err.message})
@@ -67,9 +67,9 @@ module.exports={
                }
                console.log(results)
                sql=`SELECT * FROM galeri`
-               mysql.query(sql, (err, result2)=>{
+               mysql.query(sql, (err, result3)=>{
                    if(err) res.status(500).send(err)
-                   res.status(200).send({dataFoto:result2})
+                   res.status(200).send({dataFoto:result3})
                })
            })
        })

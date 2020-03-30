@@ -133,5 +133,18 @@ module.exports={
                 return res.status(200).send({pageOfData, pager})
             })
         })
+    }, overtimeSubscribe:(req, res)=>{
+        var {idtransaksi}=req.params
+        var sql=`select * from transaksi where tglberakhir > current_date() and iduser=${idtransaksi}`
+        mysql.query(sql, (err, results)=>{
+            if(err) return res.status(500).send(err)
+            if(results.length){
+                sql=`update transaksi set ? status='expired' where tglberakhir > current_date() and iduser=${idtransaksi}`
+                mysql.query(sql, (err, results2)=>{
+                    if(err) res.status(500).send(err)
+                    console.log(results2)
+                })
+            }
+        })
     }
 }
