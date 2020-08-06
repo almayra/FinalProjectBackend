@@ -79,12 +79,12 @@ module.exports={
     approveTransaksi:(req, res)=>{
         var {idtransaksi}=req.params
         var {status}= req.body
-        // console.log('line 82', idtransaksi)
+        var {iduser}=req.body
+        console.log(iduser)
         idtransaksi=parseInt(idtransaksi)
         console.log(idtransaksi, 'line84')
 
         if(status){
-            // console.log(status, parseInt( idtransaksi), 'line 85')
             var data2={
                 status:'approved',
                 tglmulai: moment().format('LL'),
@@ -95,9 +95,16 @@ module.exports={
             var sql=`UPDATE transaksi SET ? WHERE idtransaksi = ${idtransaksi}`
             mysql.query(sql, data2, (err, results2)=>{
                 if(err) res.status(500).send(err)
+
+                var data={
+                    idpaketbljr:2
+                }
                 console.log(results2)
-            })
-            
+                sql=`UPDATE users SET ? WHERE id = ${iduser} and idpaketbljr=1`
+                mysql.query(sql, data, (err1, results1)=>{
+                    if(err1) res.status(500).send(err1)
+                })
+            })            
         }else{
             console.log(status, 'line 109')
             var data2={
@@ -126,7 +133,7 @@ module.exports={
             } else {
                 offset = pageSize * (page - 1)
             }
-            sql=`select u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket from users u join transaksi t on u.id=t.iduser join paketbelajar pb on t.idpaket=pb.idpak where t.status='waiting confirmation' LIMIT ? OFFSET ?`
+            sql=`SELECT u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket FROM users u JOIN transaksi t ON u.id=t.iduser join paketbelajar pb ON t.idpaket=pb.idpak WHERE t.status='waiting confirmation' LIMIT ? OFFSET ?`
             mysql.query(sql, [pageSize, offset], (err, results)=>{
                 if(err) res.status(500).send(err)
                 const pageOfData=results
@@ -135,16 +142,21 @@ module.exports={
         })
     }, overtimeSubscribe:(req, res)=>{
         var {idtransaksi}=req.params
-        var sql=`select * from transaksi where tglberakhir > current_date() and iduser=${idtransaksi}`
+        var sql=`SELECT * FROM transaksi WHERE tglberakhir > current_date() AND idtransaksi=${idtransaksi}`
         mysql.query(sql, (err, results)=>{
             if(err) return res.status(500).send(err)
             if(results.length){
-                sql=`update transaksi set ? status='expired' where tglberakhir > current_date() and iduser=${idtransaksi}`
+                sql=`UPDATE transaksi SET status='expired' WHERE tglberakhir > current_date() AND idtransaksi=${idtransaksi}`
                 mysql.query(sql, (err, results2)=>{
                     if(err) res.status(500).send(err)
                     console.log(results2)
                 })
             }
+            sql=`SELECT u.username, u.id as iduser , t.status, t.idtransaksi, t.tglmulai, t.tglberakhir, t.bukti, pb.namapaket FROM users u JOIN transaksi t ON u.id=t.iduser join paketbelajar pb ON t.idpaket=pb.idpak WHERE t.status='approved'`
+            mysql.query(sql, (err, results2)=>{
+                if(err) res.status(500).send(err)
+                return res.status(200).send(results2)
+            })
         })
     }
 }

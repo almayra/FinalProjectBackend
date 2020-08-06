@@ -147,11 +147,11 @@ module.exports={
         let dataCount
         mysql.query(sqlCount, (err, result)=>{
             if(err) res.status(500).send(err)
-            dataCount=result[0].count 
+            dataCount=result[0].count
 
             const page=parseInt(req.params.page)||1 //mindah2
             const pageSize=9
-            const pager=paginate(dataCount, page, pageSize)
+            const pager=paginate(dataCount, page, pageSize) 
 
             let offset //limit in product
             if(page === 1){
@@ -180,6 +180,15 @@ module.exports={
     getMarketing:(req, res)=>{
         var sql='SELECT * FROM product p join category c on p.idkategori=c.idkat where p.idkategori=2'
         mysql.query(sql, (err, res1)=>{
+            if(err){
+                return res.status(500).send(err)
+            }
+            return res.status(200).send(res1)
+        })
+    },
+    getKelasBaru:(req, res)=>{
+        var sql='SELECT * FROM pkcopywriting.product order by id DESC limit 3;'
+        mysql.query(sql,(err, res1)=>{
             if(err){
                 return res.status(500).send(err)
             }

@@ -11,5 +11,6 @@ router.get('/getdetailkelas/:selectedId', productController.getDetailKelas)
 router.get('/getkelaspage/:page', productController.getPageKelas)
 router.get('/getbranding', productController.getBranding)
 router.get('/getmarketing', productController.getMarketing)
+router.get('/getkelasbaru', productController.getKelasBaru)
 
 module.exports=router

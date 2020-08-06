@@ -132,7 +132,7 @@ module.exports={
             dataCount=result[0].count 
 
             const page=parseInt(req.params.page)||1 //mindah2
-            const pageSize=5
+            const pageSize=10
             const pager=paginate(dataCount, page, pageSize)
 
             let offset //limit in product
